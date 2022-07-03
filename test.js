@@ -3,8 +3,8 @@ const micro = require('micro')
 const test = require('ava')
 const listen = require('test-listen')
 const axios = require('axios')
-const app = require('./index');
-const landing = require('./landing.html');
+const app = require('./build/index');
+const landing = require('./build/landing.html');
 const qs = require('qs');
 
 const server = micro(app);

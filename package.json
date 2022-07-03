@@ -13,9 +13,9 @@
     "urlencoded-body-parser": "^3.0.0"
   },
   "scripts": {
-    "start": "micro -l tcp://0.0.0.0:${PORT-8080}",
-    "dev": "yarn tsc && micro-dev",
-    "test": "ava"
+    "start": "micro build/ -l tcp://0.0.0.0:${PORT-8080}",
+    "dev": "yarn tsc && micro-dev build/",
+    "test": "yarn tsc && ava"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",
