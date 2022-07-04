@@ -1,13 +1,12 @@
 const http = require('http')
-const micro = require('micro')
 const test = require('ava')
 const listen = require('test-listen')
 const axios = require('axios')
-const app = require('./build/index');
+const { app } = require('./build/index');
 const landing = require('./build/landing.html');
 const qs = require('qs');
 
-const server = micro(app);
+const server = http.createServer(app);
 
 test.before(async t => {
     t.context.url = await listen(server);
@@ -37,7 +36,7 @@ test('should return the list of errors for invalid source code and 400 status', 
         data: qs.stringify({source}),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'}
     }).catch(err => err.response);
-
+    // console.log(response.status);
     const parse = response.data;
     t.true(Array.isArray(parse.errors) && response.status === 400, 'should be an array of errors');
 })

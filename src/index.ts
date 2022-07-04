@@ -1,39 +1,62 @@
+import fs from 'fs';
+import path from 'path';
+import http from 'http';
 import solc from 'solc';
-import { json, send } from 'micro';
 import html from './landing.html';
-const parse = require('urlencoded-body-parser');
 
-module.exports = async (req: any, res: any) => {
+export const app = async (req: any, res: any) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Max-Age", "86400");
     res.setHeader("Access-Control-Allow-Headers", "content-type");
     res.setHeader("Access-Control-Allow-Methods","POST, GET, OPTIONS");
 
     try {
-        const { method } = req;
+        const { method, url } = req;
         const isPost = method === 'POST';
     
         if (isPost) {
-            const { source, include, abi = "0" }: {source: string, include: string, abi: string} = await parse(req);
+            // extract the body
+            const buffers = [];
+            for await (const chunk of req) buffers.push(chunk);
+           
+            const data = Buffer.concat(buffers).toString();
+            const body = new URLSearchParams(data);
+
+            const source = body.get('source'),
+                include = body.get('include') ?? '',
+                abi = body.get('abi') ?? '';
+
             // console.log(source, include, abi);
+
             if (!source) {
                 const err = new Error('No source provided') as any;
                     err.statusCode = 400;
                 throw err;
             }
             const output = cleanUp(compile(source), include, abi);
-            res.end(JSON.stringify(output));
             
+            res.writeHead(200, {'Content-Type': 'text/plain'})
+            .end(JSON.stringify(output))
+
+        } else if (url === '/favicon.ico') {
+            res.writeHead(200, {'Content-Type': 'image/svg+xml'});
+            fs.createReadStream(path.resolve('power.svg')).pipe(res);
         } else {
             // render html content that describe the api
-            res.end(html);
+            res.writeHead(200, {'Content-Type': 'text/html'})
+            .end(html);
         }
     } catch (err: any) {
         // console.log(err);
-        send(res, err?.statusCode ?? 400, err.message);
+        res.writeHead(err?.statusCode ?? 500, {'Content-Type': 'text/plain'})
+        .end(err.message);
     }
-    
 }
+
+export default http.createServer(app).listen(process.env?.PORT ?? 8080, () => {
+    console.log('App running on port 8080');
+})
+
 
 function compile(source: string) {
     const input = {
@@ -51,10 +74,13 @@ function compile(source: string) {
             }
         }
     };
+
     const output = JSON.parse(solc.compile(JSON.stringify(input)));
     if (output.errors) {
         const extract = ({component, errorCode, formattedMessage, message, type, severity}: any) => ({component, errorCode, formattedMessage, message, type, severity});
-        throw new Error( JSON.stringify({errors: output.errors.map(extract)}, null, 2) );
+        const error = new Error( JSON.stringify({errors: output.errors.map(extract)}, null, 2) ) as any;
+            error.statusCode = 400;
+        throw error;
     }
     return output.contracts['contract.sol'];
 }
