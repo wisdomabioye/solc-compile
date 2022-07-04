@@ -12,7 +12,7 @@
   },
   "scripts": {
     "start": "node build/index",
-    "dev": "yarn tsc && nodemon build/index",
+    "dev": "yarn tsc && node build/index",
     "test": "yarn tsc && ava",
     "build": "rm -rf build/ && yarn tsc"
   },
