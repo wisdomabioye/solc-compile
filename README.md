@@ -36,7 +36,7 @@ async function simulateRequest() {
     const body = {
         source: source, // your source code
         include: '', // leave empty to include all contracts in the output
-        abi: '0', // do not include the ABI in the output
+        abi: '1', // include the ABI in the response, '0' to exclude ABI in the response
     } 
 
     const headers = new Headers();
@@ -58,7 +58,47 @@ simulateRequest();
 
 {
     "Test": {
-        "abi": [],
+        "abi": [
+            {
+                "inputs": [],
+                "name": "b",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "bar",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "_b",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "test",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            }
+        ],
         "evm": {
             "bytecode": {
                 "object": "608060405234801561001057600080fd5b5061017f806100206000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c806329e99f07146100465780634df7e3d014610062578063febb0f7e14610080575b600080fd5b610060600480360381019061005b91906100f2565b61009e565b005b61006a6100a8565b604051610077919061012e565b60405180910390f35b6100886100ae565b604051610095919061012e565b60405180910390f35b8060008190555050565b60005481565b60008054905090565b600080fd5b6000819050919050565b6100cf816100bc565b81146100da57600080fd5b50565b6000813590506100ec816100c6565b92915050565b600060208284031215610108576101076100b7565b5b6000610116848285016100dd565b91505092915050565b610128816100bc565b82525050565b6000602082019050610143600083018461011f565b9291505056fea2646970667358221220b440fb57a33855b1d8c56a33492244bfa85266033042b5e7b2f7cc78a6eaacc564736f6c634300080f0033"
